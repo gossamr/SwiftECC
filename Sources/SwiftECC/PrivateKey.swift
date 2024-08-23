@@ -499,7 +499,7 @@ public class ECPrivateKey: CustomStringConvertible {
     public func decryptAESGCM(msg: Data, cipher: AESCipher, aad: Data = Data()) throws -> Data {
         return try Data(self.decryptAESGCM(msg: Bytes(msg), cipher: cipher, aad: Bytes(aad)))
     }
-    
+
     /// Computes a shared secret using the Diffie-Hellman key agreement primitive
     ///
     /// The method is compatible with the CryptoKit method `sharedSecretFromKeyAgreement`.
@@ -515,6 +515,26 @@ public class ECPrivateKey: CustomStringConvertible {
         }
         let Z = try self.domain.multiplyPoint(pubKey.w, (cofactor ? self.domain.cofactor : 1) * self.s).x.asMagnitudeBytes()
         return self.domain.align(Z)
+    }
+
+    /// Computes a shared secret using the Diffie-Hellman key agreement primitive
+    ///
+    /// The method is compatible with the CryptoKit method `sharedSecretFromKeyAgreement`.
+    ///
+    /// - Parameters:
+    ///   - pubKey: The other party's public key
+    ///   - cofactor: Use cofactor version - `false` is default
+    /// - Returns: The shared secret, along with the X and Y coordinates of the intermediate pubkey
+    /// - Throws: An exception if `self` and `pubKey` do not belong to the same domain
+    public func mpSharedSecret(pubKey: ECPublicKey, cofactor: Bool = false) throws -> (Bytes, BInt, BInt) {
+        guard self.domain == pubKey.domain else {
+            throw ECException.keyAgreementParameter
+        }
+        let tmp = try self.domain.multiplyPoint(pubKey.w, (cofactor ? self.domain.cofactor : 1) * self.s)
+        let X = tmp.x
+        let Y = tmp.y
+        let Z = tmp.x.asMagnitudeBytes()
+        return (self.domain.align(Z), X, Y)
     }
 
     /// Computes a shared secret key using Diffie-Hellman key agreement
@@ -537,7 +557,7 @@ public class ECPrivateKey: CustomStringConvertible {
         }
         return KDF.X963KDF(kind, Z, length, sharedInfo)
     }
-    
+
     /// Computes a shared secret key using Diffie-Hellman key agreement
     ///
     /// This is the HKDF version from [RFC 5869].
