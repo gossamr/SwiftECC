@@ -24,6 +24,11 @@ public class ECSignature {
         self.s = s
     }
 
+    public convenience init(der: Bytes, domain: Domain) throws {
+        let asn = try ASN1.build(der)
+        try self.init(asn1: asn, domain: domain)
+    }
+
     /// Creates a signature from its ASN1 representation
     ///
     /// - Parameters:
