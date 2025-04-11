@@ -585,6 +585,10 @@ public class ECPrivateKey: CustomStringConvertible {
             return 48
         case .SHA2_512:
             return 64
+        case .SHA2_512_224:
+            return 28
+        case .SHA2_512_256:
+            return 32
         case .SHA3_224:
             return 28
         case .SHA3_256:

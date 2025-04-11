@@ -431,7 +431,7 @@ public class Domain: CustomStringConvertible, Equatable {
     ///
     /// - Parameters:
     ///   - bytes: The byte array to decode
-    ///   - Returns: The point
+    /// - Returns: The point
     /// - Throws: An `decodePoint` exception if `bytes` contains invalid data
     public func decodePoint(_ bytes: Bytes) throws -> Point {
         let p = try self.characteristic2 ? self.domain2!.decodePoint(bytes) : self.domainP!.decodePoint(bytes)
